@@ -13,7 +13,7 @@
     <div class="jumbotron">
         <div class="container">
             <h1>Belly Button Biodiversity</h1>
-            <p>An interactive dashboard of microbacteria samples of belly buttons.</p>
+            <p>By Liliane Kouam</p>
         </div>
     </div>
     <div class="container">
@@ -32,7 +32,24 @@
             </div>
            
         </div>
-        
+        <div class="row">
+            <div class="col-md-12">
+              <div class="panel panel-info">
+                <div class="panel-heading text-center">
+                  <h3 class="panel-title">Sample MetaData</h3>
+                </div>
+                <!-- metadata panel -->
+                <div id="Metadata" class="panel-body"></div>
+              </div>
+            </div>
+          </div>
+      </div>
+      
+      <div class="col-md-5">
+        <!-- the pie Chart will go here-->
+        <div id = "piePlot"></div>
+      </div>
+
     </div>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="{{ url_for('static', filename='js/index.js') }}"></script>

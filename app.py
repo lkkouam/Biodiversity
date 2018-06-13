@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, Float, Integer, String
 from sqlalchemy import inspect
 
+from sqlalchemy import desc
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
@@ -36,18 +37,19 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///db/belly_button_biodiversity.
 
 #engine = create_engine(os.environ.get('DATABASE_URL', '') or "sqlite:///db/belly_button_biodiversity.sqlite")
 engine = create_engine("sqlite:///db/belly_button_biodiversity.sqlite")
-#Base.metadata.create_all(engine)
+
 conn = engine.connect()
 
 # reflect an existing database into a new model
 Base = automap_base()
+
 # reflect the tables
 Base.prepare(engine, reflect=True)
 
 # Save reference to the table
 #samples = Base.classes.samples
 
-samples = Base.classes.samples
+Sample = Base.classes.samples
 Metadata = Base.classes.samples_metadata
 Otu = Base.classes.otu
 
@@ -212,62 +214,32 @@ def metadata(sample="None"):
 #     Args: Sample in the format: `BB_940`
 #     Returns an integer value for the weekly washing frequency `WFREQ`
 
-
-@app.route('/wfreq/<sample>')
-@app.route('/wfreq')
-def wfreq(sample="None"):
-  
-    wfreq = []
-
-    #for i in db.session.query(Metadata.wfreq, Metadata.sampleid).all():
-    for i in session.query(Metadata.WFREQ, Metadata.SAMPLEID).all():
-        wfreq.append(i)
-
-        if sample[3:] == str(i[1]):
-            return jsonify(i[0])
-
-    wfreq = ["{}, {}".format(l[0], l[1]) for l in wfreq]
-
-    return jsonify(wfreq)
+@app.route("/wfreq/<sample>")
+def wfrequency(sample):
+    sample_name = sample.replace("BB_", "")
+    sample_conv = int(sample_name)
+    result = session.query(Metadata.WFREQ).filter_by(SAMPLEID = sample_conv).all()
+    wash_freq = result[0][0]
+    return jsonify(wash_freq)
 
 
-#
-# 
 # OTU IDs and Sample Values for a given sample.
 #     Sort your Pandas DataFrame (OTU ID and Sample Value)
 #     in Descending Order by Sample Value
 #     Return a list of dictionaries containing sorted lists  for `otu_ids`
 #     and `sample_values`
 
-
 @app.route('/samples/<sample>')
 # @app.route('/samples')
 #def samples(sample="None"):
 def samples(sample):   
     
-    #df_sample = pd.read_sql('SELECT * FROM samples', engine).set_index('otu_id')
-
-    result = []
-    with engine.connect() as con:
-
-       rs = con.execute('SELECT otu_id, {0} FROM samples ORDER BY {0} DESC'.format(sample))
-
-       for row in rs:
-           print(row.values())
-           result.append(row.values())
-
-    # otu_ids = df_sample[format(sample)].sort_values(ascending=False).index.tolist()
-    # sample_values = df_sample['BB_{}'.format(sample[3:])].sort_values(ascending=False).tolist()
-   
-
-    # otu_ids = [int(i) for i in otu_ids]
-    # sample_values = [int(i) for i in sample_values]
-
-    # result = {'otu_ids': otu_ids, 'sample_values': sample_values}
-
-    return jsonify(result)
-    # return jsonify(resData)
-
+    sample_query = sample
+    result = session.query(Sample.otu_id, sample_query).order_by(desc(sample_query)).all()
+    otu_ids = [result[x][0] for x in range(len(result))]
+    sample_values = [result[x][1] for x in range(len(result))]
+    dict_list = [{"otu_ids": otu_ids}, {"sample_values": sample_values}]
+    return jsonify(dict_list)    
 
 if __name__ == "__main__":
     app.run()

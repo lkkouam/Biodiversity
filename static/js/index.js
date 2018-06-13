@@ -103,7 +103,8 @@ function updateMetadata(sample){
         console.log(response);
         var data = response[0];
         console.log(data)
-        var metaList = document.getElementById('sampleMetadata');
+        // var metaList = document.getElementById('sampleMetadata');
+        var metaList = document.getElementById('Metadata');
         metaList.innerHTML = '';
         var metaItems = [["Sample","SAMPLEID"],["Ethnicity","ETHNICITY"],["Gender","GENDER"],["Age","AGE"],
             ["Weekly Wash Frequency","WFREQ"],["Type (Innie/Outie)","BBTYPE"],["Country","COUNTRY012"],["Dog Owner","DOG"],["Cat Owner","CAT"]];
